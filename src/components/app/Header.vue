@@ -1,13 +1,13 @@
 <template>
   <header>
     <div class="logo">
-      <a href="#">
+      <router-link tag="a" to="/" href="#">
         <img src="@/assets/img/logo.png" alt="CRM">
-      </a>
+      </router-link>
     </div>
     <div class="rightSide">
       <div class="currentDate">
-        20 Sep 2020
+        {{ date | date('date') }}
       </div>
       <div class="messages">
         <button>
@@ -20,7 +20,7 @@
         </button>
         <span>3</span>
       </div>
-      <div class="user">
+      <div class="user" @click="userMenu()">
         <div class="user-img">
           <img src="@/assets/img/logo.jpeg" alt="user name">
         </div>
@@ -30,16 +30,57 @@
         <div class="user-arrow">
           <Icons name="arrowDown" class="icon"></Icons>
         </div>
+        <div class="user-dropDown">
+          <router-link tag="li" to="/profile" href="#">
+            <a href="#">Profile</a>
+          </router-link>
+          <li tag="li">
+            <a href="#" @click.prevent="logout">Logout</a>
+          </li>
+        </div>
       </div>
     </div>
+    <div class="overflow"></div>
   </header>
 </template>
 
 <script>
 import Icons from '@/components/Icons'
 export default {
+  data: () => ({
+    date: new Date(),
+    interval: null
+  }),
   components: {
     Icons
+  },
+  methods: {
+    userMenu() {
+      const btn = document.querySelector('.user')
+      const drop = document.querySelector('.user-dropDown')
+      const overflow = document.querySelector('.overflow')
+      btn.classList.toggle('full')
+      drop.classList.toggle('full')
+      overflow.classList.toggle('full')
+
+      overflow.addEventListener('click', function() {
+        btn.classList.remove('full')
+        drop.classList.remove('full')
+        overflow.classList.remove('full')
+      })
+    },
+    logout() {
+      console.log('Logout');
+      this.$router.push('/login?message=logout')
+    }
+  },
+  mounted() {
+    this.interval = setInterval(() => {
+      this.date = new Date()
+    }, 1000)
+  },
+  beforeDestroy() {
+    clearInterval(this.interval)
   }
 }
 </script>
@@ -132,9 +173,18 @@ header {
       cursor: pointer;
       padding: 5px;
       border-radius: 4px;
+      position: relative;
+      z-index: 1;
+
       &:hover {
         background-color: #2A2D33;
       }
+
+      &.full {
+        background-color: #2A2D33;
+      }
+
+
       &-img {
         img {
           width: 35px;
@@ -144,11 +194,58 @@ header {
           border-radius: 50px;
         }
       }
+
       &-name {
         margin: 0 10px;
         color: #fff;
         font-size: 14px;
       }
+
+      &-dropDown {
+        width: 200px;
+        background-color: #1F2227;
+        position: absolute;
+        top: calc(100% + 7px);
+        right: 0;
+        border-radius: 0px 0px 3px 3px;
+        padding: 10px;
+
+        visibility: hidden;
+        opacity: 0;
+
+        &.full {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        li {
+          margin-bottom: 10px;
+
+          a {
+            width: 100%;
+            display: block;
+            padding: 10px;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #fff;
+
+            &:hover {
+              background-color: #2a2d33;
+            }
+          }
+        }
+      }
+    }
+  }
+  .overflow {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    display: none;
+    top: 0px;
+
+    &.full {
+      display: block;
     }
   }
 }
